@@ -1,13 +1,13 @@
-#include "TransactionFile.h"
+#include "BatchTransactionFile.h"
 
 #include <stdexcept>
 
-TransactionFile::TransactionFile(const std::string &filePath) : filePath(filePath), fileStream(filePath) {
+BatchTransactionFile::BatchTransactionFile(const std::string &filePath) : filePath(filePath), fileStream(filePath) {
     if (!fileStream.is_open())
         throw std::system_error(errno, std::system_category(), "Failed to open transaction file " + filePath + " for read");
 }
 
-std::vector<std::vector<Operation>> TransactionFile::readAll() {
+std::vector<std::vector<Operation>> BatchTransactionFile::readAll() {
     fileStream.clear();
     fileStream.seekg(0);
 
@@ -42,11 +42,7 @@ std::vector<std::vector<Operation>> TransactionFile::readAll() {
                 if (!(fileStream >> newData))
                     throw std::runtime_error("Failed to read transaction file " + filePath + ": failed to read new data of " + std::to_string(i) + "-th transaction's " + std::to_string(j) + "-th operation");
 
-                operation.newData = newData;
-                // operation.updateData = [newData{std::move(newData)}] (std::string &currentData) {
-                //     // Simply re-assign the data
-                //     currentData = newData;
-                // };
+                operation.newDataOrReadResult = newData;
             }
         }
 

@@ -18,7 +18,7 @@ std::vector<size_t> getSerializationOrder();
 
 class Transaction {
     Transaction(transaction_id_t id) : id(id) { start(); }
-    friend class TransactionRunner;
+    friend class InteractiveTransaction;
 
 public:
     // ID is used internally by the framework to identify the transaction, for validation

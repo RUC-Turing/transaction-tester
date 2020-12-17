@@ -5,7 +5,7 @@
 Arguments parseArguments(int argc, char *argv[]) {
     Arguments arguments;
     ArgumentParser(argc, argv)
-        .setProgramDescription("Tester for transaction concurrency control algorithm implementation.")
+        .setProgramDescription("Batch tester for transaction concurrency control algorithm implementation.")
         .addOption(
             "preload-data", "d",
             "path",
@@ -14,10 +14,10 @@ Arguments parseArguments(int argc, char *argv[]) {
             false
         )
         .addOption(
-            "transactions", "t",
+            "batch-transactions", "t",
             "path",
-            "The file of transactions to execute in the database.",
-            ArgumentParser::stringParser(arguments.transactionFile),
+            "The file of batch transactions to execute in the database.",
+            ArgumentParser::stringParser(arguments.batchTransactionFile),
             false
         )
         .addOption(

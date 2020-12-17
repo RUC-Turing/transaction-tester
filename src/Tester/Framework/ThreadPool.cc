@@ -41,3 +41,5 @@ void ThreadPool::workerThread() {
         task();
     }
 }
+
+std::unique_ptr<ThreadPool> threadPool;

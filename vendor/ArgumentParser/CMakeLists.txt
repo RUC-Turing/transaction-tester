@@ -8,4 +8,4 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 file(GLOB SRC "*.cc")
 
-add_library(argument-parser STATIC ${SRC})
+add_library(argument-parser SHARED ${SRC})

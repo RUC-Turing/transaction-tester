@@ -1,5 +1,5 @@
-#ifndef _MENCI_TRANSACTION_TESTER_UTILITY_H
-#define _MENCI_TRANSACTION_TESTER_UTILITY_H
+#ifndef _MENCI_TRANSACTION_TESTER_FRAMEWORK_UTILITY_H
+#define _MENCI_TRANSACTION_TESTER_FRAMEWORK_UTILITY_H
 
 #include <cstdint>
 #include <atomic>
@@ -14,4 +14,4 @@ inline timestamp_t getTimestamp() {
     return atomic.fetch_add(1, std::memory_order_relaxed);
 }
 
-#endif // _MENCI_TRANSACTION_TESTER_UTILITY_H
+#endif // _MENCI_TRANSACTION_TESTER_FRAMEWORK_UTILITY_H

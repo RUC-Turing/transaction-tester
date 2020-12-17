@@ -1,10 +1,10 @@
-#ifndef _MENCI_TRANSACTION_TESTER_DATAFILE_H
-#define _MENCI_TRANSACTION_TESTER_DATAFILE_H
+#ifndef _MENCI_TRANSACTION_TESTER_BATCH_DATAFILE_H
+#define _MENCI_TRANSACTION_TESTER_BATCH_DATAFILE_H
 
 #include <fstream>
 #include <functional>
 
-#include "RecordType.h"
+#include "Framework/RecordType.h"
 
 using ReadRecordCallback = std::function<void (RecordKey &&key, RecordData &&value)>;
 
@@ -18,4 +18,4 @@ public:
     void readAll(ReadRecordCallback callback);
 };
 
-#endif // _MENCI_TRANSACTION_TESTER_DATAFILE_H
+#endif // _MENCI_TRANSACTION_TESTER_BATCH_DATAFILE_H
