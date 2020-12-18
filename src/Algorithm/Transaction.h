@@ -7,14 +7,15 @@
 #include <unordered_map>
 
 #include "Framework/RecordType.h"
+#include "Framework/Utility.h"
 
 using transaction_id_t = size_t;
 
 // This function is called only once, before ALL transactions
-void preloadData(const std::unordered_map<RecordKey, RecordData> &records);
+void preloadData(const std::unordered_map<RecordKey, RecordData> &initialRecords);
 
 // This function is called only once, after ALL transactions
-std::vector<size_t> getSerializationOrder();
+std::vector<transaction_id_t> getSerializationOrder();
 
 class Transaction {
     Transaction(transaction_id_t id) : id(id) { start(); }
@@ -33,7 +34,7 @@ private:
 
     // Fill your transaction-specfied data here
     // e.g. transaction timestamp
-    uint64_t timestamp;
+    timestamp_t timestamp;
 
     // These 5 functions below are the framework's interface
     // Return false on ANY function means the transaction should ROLLBACK

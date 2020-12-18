@@ -32,8 +32,8 @@ std::future<bool> TransactionRunner::runTransaction(std::function<void (Interact
             startTime = std::chrono::high_resolution_clock::now();
         }
         operationsByTransaction.push_back(std::make_shared<std::vector<Operation>>());
-        id = operationsByTransaction.size() - 1;
-        operations = operationsByTransaction[id];
+        id = operationsByTransaction.size();
+        operations = operationsByTransaction[id - 1];
     }
 
     return threadPool->run([operations, id, transactionUser{std::move(transactionUser)}] {
@@ -95,7 +95,7 @@ void TransactionRunner::validateAndPrintStatistics() {
     // Validate read results
     Validator validator(initialRecords);
     for (size_t id : serializationOrder)
-        validator.validateTransaction(id, *operationsByTransaction[id]);
+        validator.validateTransaction(id, *operationsByTransaction[id - 1]);
 
     std::cout << TerminalColor::ForegroundGreen << TerminalColor::Bold << "Success: " << TerminalColor::Reset
               << TerminalColor::Bold << committedTransactionSet.size() << TerminalColor::Reset

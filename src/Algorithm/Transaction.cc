@@ -6,8 +6,6 @@
 #include <iostream>
 #include <list>
 
-#include "Framework/Utility.h"
-
 struct DataVersion {
     // A verion's valid timestamp interval
     // [begin-ts, end-ts)
@@ -35,8 +33,8 @@ static std::vector<transaction_id_t> serializationOrder;
 static std::mutex serializationOrderLock;
 
 // This function is called only once, before ALL transactions
-void preloadData(const std::unordered_map<RecordKey, RecordData> &records) {
-    for (auto &[key, data] : records) {
+void preloadData(const std::unordered_map<RecordKey, RecordData> &initialRecords) {
+    for (auto &[key, data] : initialRecords) {
         DataVersion version;
         version.beginTimestamp = 1;
         version.endTimestamp = TIMESTAMP_INF;
@@ -48,7 +46,7 @@ void preloadData(const std::unordered_map<RecordKey, RecordData> &records) {
 }
 
 // This function is called only once, after ALL transactions
-std::vector<size_t> getSerializationOrder() {
+std::vector<transaction_id_t> getSerializationOrder() {
     return serializationOrder;
 }
 
