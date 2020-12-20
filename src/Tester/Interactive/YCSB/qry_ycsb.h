@@ -37,10 +37,10 @@ class QryYCSB;
 class QueryGenYCSB {
 public:
     void init();
-    QryYCSB* create_query();
+    QryYCSB* create_query(size_t tableSize, size_t requestsPerTransaction);
 
 private:
-    QryYCSB* gen_requests_zipf();
+    QryYCSB* gen_requests_zipf(size_t tableSize, size_t requestsPerTransaction);
     // for Zipfian distribution
     double zeta(uint64_t n, double theta);
     uint64_t zipf(uint64_t n, double theta);
@@ -58,7 +58,7 @@ public:
 
     void print();
 
-    void init();
+    void init(size_t requestsPerTransaction);
     void release();
     void release_requests();
     void reset();

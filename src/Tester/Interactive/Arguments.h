@@ -4,6 +4,11 @@
 #include <string>
 
 struct Arguments {
+    size_t tableSize;
+    size_t fieldCount;
+    size_t fieldLength;
+    size_t transactions;
+    size_t requestsPerTransaction;
     size_t threads;
 };
 

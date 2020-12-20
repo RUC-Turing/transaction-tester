@@ -1,5 +1,6 @@
 #include <iostream>
 #include <future>
+#include <cstdlib>
 
 #include <TerminalColor/TerminalColor.h>
 
@@ -18,14 +19,13 @@ int main(int argc, char *argv[]) {
         std::unordered_map<RecordKey, RecordData> initialRecords;
 
         // YCSB generates data
-        for (size_t i = 0; i < TABLE_SIZE; i++) {
+        for (size_t i = 0; i < arguments.tableSize; i++) {
             RecordKey key = i;
             // YCSB table has 10 colums
-            RecordData value;
+            RecordData value(arguments.fieldCount);
             value.fields[0] = std::to_string(key);
-            for (int fid = 1; fid < FIELD_COUNT; fid ++) {
-				int field_size = FIELD_SIZE;
-				for (int i = 0; i < field_size; i++) 
+            for (int fid = 1; fid < arguments.fieldCount; fid++) {
+				for (int i = 0; i < arguments.fieldLength; i++) 
 					value.fields[fid] += 'A' + rand() % ('Z' - 'A' + 1);
 			}
             initialRecords[key] = value;
@@ -36,15 +36,15 @@ int main(int argc, char *argv[]) {
 
         QueryGenYCSB *gen = new QueryGenYCSB;
         gen->init();
-        QryYCSB *query[TEST_TXN_COUNT];
-        for (size_t i = 0; i < TEST_TXN_COUNT; i++)
-            query[i] = gen->create_query();
+        QryYCSB *query[arguments.transactions];
+        for (size_t i = 0; i < arguments.transactions; i++)
+            query[i] = gen->create_query(arguments.tableSize, arguments.requestsPerTransaction);
 
         std::vector<std::future<bool>> futures; // A std::future is used for awaiting transaction execuation
-        for (size_t i = 0; i < TEST_TXN_COUNT; i++) {
+        for (size_t i = 0; i < arguments.transactions; i++) {
             futures.push_back(TransactionRunner::runTransaction([&, i] (InteractiveTransaction &transaction) {
                 RecordData readResult;
-                for (size_t j = 0; j < YCSB_REQ_PER_QUERY; j++) {
+                for (size_t j = 0; j < arguments.requestsPerTransaction; j++) {
                     if (!transaction.read(query[i]->requests[j]->key, readResult)) return;
                     if (query[i]->requests[j]->acctype == WR) {
                         readResult.fields[2] += query[i]->requests[j]->value;

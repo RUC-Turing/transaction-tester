@@ -74,7 +74,7 @@ ArgumentParser &ArgumentParser::showHelp() {
         std::clog << "  " << argument;
         // Pad to argumentNameLength characters.
         if (argumentNameLength > argument.length() - 2) {
-            size_t spaceCount = argumentNameLength - argument.length() - 2;
+            size_t spaceCount = argumentNameLength - (argument.length() - 2);
             std::clog << std::string(spaceCount, ' ');
         }
 

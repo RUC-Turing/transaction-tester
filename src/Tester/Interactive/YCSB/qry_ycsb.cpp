@@ -9,20 +9,20 @@ uint64_t QueryGenYCSB::the_n = 0;
 double QueryGenYCSB::denom = 0;
 
 constexpr double g_theta_zipf = 0.3;
-constexpr size_t g_table_size_synth = 10000;
+constexpr size_t g_tableSize_synth = 10000;
 
 void QueryGenYCSB::init() {
     mrand = (myrand *)malloc(sizeof(myrand));
     mrand->init(std::random_device()());
     zeta_2_theta = zeta(2, g_theta_zipf);
-    uint64_t table_size = g_table_size_synth;
-    the_n = table_size - 1;
+    uint64_t tableSize = g_tableSize_synth;
+    the_n = tableSize - 1;
     denom = zeta(the_n, g_theta_zipf);
 }
 
-QryYCSB *QueryGenYCSB::create_query() {
+QryYCSB *QueryGenYCSB::create_query(size_t tableSize, size_t requestsPerTransaction) {
     QryYCSB *query;
-    query = gen_requests_zipf();
+    query = gen_requests_zipf(tableSize, requestsPerTransaction);
     return query;
 }
 
@@ -33,7 +33,7 @@ void QryYCSB::print() {
     // printf("\n");
 }
 
-void QryYCSB::init() { requests.reserve(YCSB_REQ_PER_QUERY); }
+void QryYCSB::init(size_t requestsPerTransaction) { requests.reserve(requestsPerTransaction); }
 
 void QryYCSB::release_requests() {
     // A bit of a hack to ensure that original requests in client query queue aren't freed
@@ -76,27 +76,25 @@ uint64_t QueryGenYCSB::zipf(uint64_t n, double theta) {
     return 1 + (uint64_t)(n * pow(eta * u - eta + 1, alpha));
 }
 
-QryYCSB *QueryGenYCSB::gen_requests_zipf() {
+QryYCSB *QueryGenYCSB::gen_requests_zipf(size_t tableSize, size_t requestsPerTransaction) {
     QryYCSB *query = (QryYCSB *)malloc(sizeof(QryYCSB));
     new (query) QryYCSB();
-    query->requests.reserve(YCSB_REQ_PER_QUERY);
+    query->requests.reserve(requestsPerTransaction);
 
     uint64_t access_cnt = 0;
     std::set<RecordKey> all_keys;
 
-    // uint64_t table_size = g_table_size_synth;
-
     double r_twr = (double)(mrand->next() % 10000) / 10000;
 
     int rid = 0;
-    for (int i = 0; i < YCSB_REQ_PER_QUERY; i++) {
+    for (int i = 0; i < requestsPerTransaction; i++) {
         // double r = (double)(mrand->next() % 10000) / 10000;
         rqst_ycsb *req = (rqst_ycsb *)malloc(sizeof(rqst_ycsb));
         if (r_twr < 0.5)
             req->acctype = RD;
         else
             req->acctype = WR;
-        uint64_t row_id = zipf(TABLE_SIZE - 1, 0.3);
+        uint64_t row_id = zipf(tableSize - 1, 0.3);
         uint64_t primary_key = row_id;
 
         req->key = primary_key;
