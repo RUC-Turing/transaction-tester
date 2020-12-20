@@ -24,8 +24,8 @@ int main(int argc, char *argv[]) {
             // YCSB table has 10 colums
             RecordData value(arguments.fieldCount);
             value.fields[0] = std::to_string(key);
-            for (int fid = 1; fid < arguments.fieldCount; fid++) {
-				for (int i = 0; i < arguments.fieldLength; i++) 
+            for (size_t fid = 1; fid < arguments.fieldCount; fid++) {
+				for (size_t i = 0; i < arguments.fieldLength; i++)
 					value.fields[fid] += 'A' + rand() % ('Z' - 'A' + 1);
 			}
             initialRecords[key] = value;

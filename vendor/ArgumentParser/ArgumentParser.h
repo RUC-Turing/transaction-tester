@@ -6,6 +6,7 @@
 #include <memory>
 #include <iostream>
 #include <sstream>
+#include <vector>
 #include <functional>
 #include <optional>
 

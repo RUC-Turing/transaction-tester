@@ -87,7 +87,7 @@ QryYCSB *QueryGenYCSB::gen_requests_zipf(size_t tableSize, size_t requestsPerTra
     double r_twr = (double)(mrand->next() % 10000) / 10000;
 
     int rid = 0;
-    for (int i = 0; i < requestsPerTransaction; i++) {
+    for (int i = 0; i < (int)requestsPerTransaction; i++) {
         // double r = (double)(mrand->next() % 10000) / 10000;
         rqst_ycsb *req = (rqst_ycsb *)malloc(sizeof(rqst_ycsb));
         if (r_twr < 0.5)

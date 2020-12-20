@@ -1,8 +1,9 @@
 #ifndef _MENCI_TRANSACTION_TESTER_FRAMEWORK_RECORD_TYPE
 #define _MENCI_TRANSACTION_TESTER_FRAMEWORK_RECORD_TYPE
 
-#include <string>
 #include <cstdint>
+#include <string>
+#include <vector>
 
 using RecordKey = uint64_t;
 
