@@ -8,8 +8,7 @@
 
 #include "Framework/RecordType.h"
 #include "Framework/Utility.h"
-
-using transaction_id_t = size_t;
+#include "Framework/WrappedTransaction.h"
 
 // This function is called only once, before ALL transactions
 void preloadData(const std::unordered_map<RecordKey, RecordData> &initialRecords);
@@ -19,7 +18,7 @@ std::vector<transaction_id_t> getSerializationOrder();
 
 class Transaction {
     Transaction(transaction_id_t id) : id(id) { start(); }
-    friend class InteractiveTransaction;
+    friend class WrappedTransaction;
 
 public:
     // ID is used internally by the framework to identify the transaction, for validation

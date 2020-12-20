@@ -19,7 +19,7 @@ std::chrono::high_resolution_clock::time_point TransactionRunner::startTime;
 
 void TransactionRunner::preloadData(const std::unordered_map<RecordKey, RecordData> &initialRecords) {
     TransactionRunner::initialRecords = initialRecords;
-    ::preloadData(initialRecords);
+    WrappedTransaction::preloadData(initialRecords);
 }
 
 std::future<bool> TransactionRunner::runTransaction(std::function<void (InteractiveTransaction &transaction)> transactionUser) {
@@ -78,7 +78,7 @@ void TransactionRunner::validateAndPrintStatistics() {
     double timeElapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime).count(),
            timeElapsedInSeconds = timeElapsed / 1000000000;
 
-    const auto &serializationOrder = getSerializationOrder();
+    const auto &serializationOrder = WrappedTransaction::getSerializationOrder();
 
     std::unordered_set<transaction_id_t> committedTransactionSet(committedTransactions.begin(), committedTransactions.end());
 

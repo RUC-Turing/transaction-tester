@@ -4,10 +4,10 @@
 #include <memory>
 
 #include "Operation.h"
-#include "Algorithm/Transaction.h"
+#include "WrappedTransaction.h"
 
 class InteractiveTransaction {
-    Transaction transaction;
+    WrappedTransaction transaction;
     enum {
         RUNNING, ROLLED_BACK, COMMITED
     } status;
