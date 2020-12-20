@@ -15,7 +15,7 @@ void Validator::validateTransaction(size_t id, const std::vector<Operation> &ope
             if (correctReadResult != operation.newDataOrReadResult) {
                 throw std::runtime_error(
                     "The " + std::to_string(i + 1) + "-th read result in transaction " + std::to_string(id) + " is wrong: " + 
-                    "expected '" + correctReadResult + "' but got '" + operation.newDataOrReadResult + "'"
+                    "expected '" + (std::string)correctReadResult + "' but got '" + (std::string)operation.newDataOrReadResult + "'"
                 );
             }
         }

@@ -4,8 +4,9 @@
 #include <TerminalColor/TerminalColor.h>
 
 #include "Framework/TransactionRunner.h"
+#include "YCSB/qry_ycsb.h"
 #include "Arguments.h"
-#include "benchmark/qry_ycsb.h"
+
 int main(int argc, char *argv[]) {
     // Parse arguments
     Arguments arguments = parseArguments(argc, argv);
@@ -14,19 +15,19 @@ int main(int argc, char *argv[]) {
     threadPool = std::make_unique<ThreadPool>(arguments.threads);
 
     try {
-        // Read initial data
         std::unordered_map<RecordKey, RecordData> initialRecords;
-        // Ycsb generates data
+
+        // YCSB generates data
         for (size_t i = 0; i < TABLE_SIZE; i++) {
-            RecordKey key = "ycsb" + String.valueof(i);
-            // ycsb table has 10 colums
+            RecordKey key = "ycsb" + std::to_string(i);
+            // YCSB table has 10 colums
             RecordData value;
             value.fields[0] = key;
             for (int fid = 1; fid < FIELD_COUNT; fid ++) {
-                value.fields[i];
+                // value.fields[i]; // ?
 				int field_size = FIELD_SIZE;
 				for (int i = 0; i < field_size; i++) 
-					value.fields[i] += (char)rand() % (1<<8) ;
+					value.fields[i] += (char)rand() % (1 << 8);
 			}
             initialRecords[key] = value;
         }
@@ -34,9 +35,9 @@ int main(int argc, char *argv[]) {
         // Preload initial data
         TransactionRunner::preloadData(initialRecords);
 
-        QueryGenYCSB * gen = new QueryGenYCSB;
+        QueryGenYCSB *gen = new QueryGenYCSB;
         gen->init();
-        QryYCSB query[TEST_TXN_COUNT];
+        QryYCSB *query[TEST_TXN_COUNT];
         for (size_t i = 0; i < TEST_TXN_COUNT; i++)
             query[i] = gen->create_query();
 
@@ -45,10 +46,10 @@ int main(int argc, char *argv[]) {
             futures.push_back(TransactionRunner::runTransaction([&] (InteractiveTransaction &transaction) {
                 RecordData readResult;
                 for (size_t j = 0; j < YCSB_REQ_PER_QUERY; j++) {
-                    if (!transaction.read(query[i].requests[j].key, readResult)) return;
-                    if (query[i].requests[j].acctype == WR) {
-                        readResult.fields[2] += query[i].requests[j].value;
-                        if (!transaction.write("test", readResult + "1")) return;
+                    if (!transaction.read(query[i]->requests[j]->key, readResult)) return;
+                    if (query[i]->requests[j]->acctype == WR) {
+                        readResult.fields[2] += query[i]->requests[j]->value;
+                        // if (!transaction.write("test", readResult + "1")) return;
                     }
                 }
                 transaction.commit();
