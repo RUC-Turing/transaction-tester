@@ -7,6 +7,7 @@
 使用 `cmake` 构建：
 
 ```bash
+export CXX=clang++ # 如果你的机器没有 Clang 编译器，请忽略这条命令
 cd transaction-tester
 mkdir build && cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release # 若要调试，请将 Release 改为 Debug
@@ -31,10 +32,8 @@ ls -lah bin # 查看构建出的可执行文件
 
 * `transaction_id_t`：定义为 `size_t`，表示事务的 ID；
 * `timestamp_t`：定义为 `uint64_t`，表示时间戳；
-* `RecordKey`：定义为 `std::string`，表示数据库中一条记录的 `key`（即主键）；
-* `RecordData`：定义为 `std::string`，表示数据库中一条记录的数据。
-
-尽管 `RecordData` 被定义为字符串类型，你也不应当依赖于其有序性（通常你也不需要这么做）—— 因为在真实的数据库中，记录的数据不一定是可比较的。
+* `RecordKey`：定义为 `uint64_t`，表示数据库中一条记录的 `key`（即主键）；
+* `RecordData`：是一个结构体，表示数据库中一条记录的数据。
 
 ## 开始所有事务前
 
@@ -44,7 +43,7 @@ ls -lah bin # 查看构建出的可执行文件
 void preloadData(const std::unordered_map<RecordKey, RecordData> &initialRecords);
 ```
 
-你需要将传入的数据存储到本地，对于多版本，我们为每条记录创建其初始版本；对于单版本，我们可以简单地复制 `initialRecords` 对象。  
+你需要将传入的数据存储到本地，对于多版本，你需要为每条记录创建其初始版本；对于单版本，你可以简单地复制 `initialRecords` 对象。  
 注意，在本框架中，数据的插入操作只会在所有事务执行前通过 `preloadData` 接口进行一次，且不会有删除操作，所以你可能不需要考虑顶层的存储结构（将记录的 `key` 映射到记录数据的版本链）的考虑并发写，也就不需要加锁。
 
 ## 执行事务时
@@ -151,7 +150,7 @@ Batch 是一种简单的测试，它会对于给定的数据，并发执行预�
 预加载数据文件的格式如下：
 
 * 第一行一个正整数，表示记录条数。
-* 之后的每一行两个字符串（不含空格）分别为 `key` 和 `value`。
+* 之后的每一行，是一个正整数和一个字符串（不含空格），以一个空格隔开，分别为 `key` 和 `value`。
 
 事务操作文件的格式如下：
 
