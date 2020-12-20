@@ -3,6 +3,9 @@
 #define _QryYCSB_H_
 
 #include <iostream>
+#include <vector>
+
+#include "Framework/RecordType.h"
 
 // Each QryYCSB contains several rqst_ycsbs,
 // each of which is a RD, WR or SCAN

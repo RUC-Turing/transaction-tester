@@ -1,17 +1,21 @@
 #include "qry_ycsb.h"
 
 #include <random>
+#include <set>
 
 #include "Framework/RecordType.h"
 
 uint64_t QueryGenYCSB::the_n = 0;
 double QueryGenYCSB::denom = 0;
 
+constexpr double g_theta_zipf = 0.3;
+constexpr size_t g_table_size_synth = 10000;
+
 void QueryGenYCSB::init() {
     mrand = (myrand *)malloc(sizeof(myrand));
     mrand->init(std::random_device()());
     zeta_2_theta = zeta(2, g_theta_zipf);
-    uint64_t table_size = g_table_size_synth / g_cnt_part;
+    uint64_t table_size = g_table_size_synth;
     the_n = table_size - 1;
     denom = zeta(the_n, g_theta_zipf);
 }
@@ -23,13 +27,13 @@ QryYCSB *QueryGenYCSB::create_query() {
 }
 
 void QryYCSB::print() {
-    for (uint64_t i = 0; i < requests.size(); i++) {
-        printf("%d %ld, ", requests[i]->acctype, requests[i]->key);
-    }
-    printf("\n");
+    // for (uint64_t i = 0; i < requests.size(); i++) {
+    //     printf("%d %ld, ", requests[i]->acctype, requests[i]->key);
+    // }
+    // printf("\n");
 }
 
-void QryYCSB::init() { requests.resize(YCSB_REQ_PER_QUERY); }
+void QryYCSB::init() { requests.reserve(YCSB_REQ_PER_QUERY); }
 
 void QryYCSB::release_requests() {
     // A bit of a hack to ensure that original requests in client query queue aren't freed
@@ -72,21 +76,21 @@ uint64_t QueryGenYCSB::zipf(uint64_t n, double theta) {
     return 1 + (uint64_t)(n * pow(eta * u - eta + 1, alpha));
 }
 
-BaseQry *QueryGenYCSB::gen_requests_zipf() {
+QryYCSB *QueryGenYCSB::gen_requests_zipf() {
     QryYCSB *query = (QryYCSB *)malloc(sizeof(QryYCSB));
     new (query) QryYCSB();
-    query->requests.init(YCSB_REQ_PER_QUERY);
+    query->requests.reserve(YCSB_REQ_PER_QUERY);
 
     uint64_t access_cnt = 0;
-    set<uint64_t> all_keys;
+    std::set<RecordKey> all_keys;
 
-    uint64_t table_size = g_table_size_synth / g_cnt_part;
+    // uint64_t table_size = g_table_size_synth;
 
     double r_twr = (double)(mrand->next() % 10000) / 10000;
 
     int rid = 0;
     for (int i = 0; i < YCSB_REQ_PER_QUERY; i++) {
-        double r = (double)(mrand->next() % 10000) / 10000;
+        // double r = (double)(mrand->next() % 10000) / 10000;
         rqst_ycsb *req = (rqst_ycsb *)malloc(sizeof(rqst_ycsb));
         if (r_twr < 0.5)
             req->acctype = RD;
@@ -106,20 +110,7 @@ BaseQry *QueryGenYCSB::gen_requests_zipf() {
             continue;
         }
         rid++;
-        query->requests.add(req);
-    }
-
-    // Sort the requests in key order.
-    if (g_key_order) {
-        for (uint64_t i = 0; i < query->requests.size(); i++) {
-            for (uint64_t j = query->requests.size() - 1; j > i; j--) {
-                if (query->requests[j]->key < query->requests[j - 1]->key) {
-                    query->requests.swap(j, j - 1);
-                }
-            }
-        }
-        // std::sort(query->requests.begin(),query->requests.end(),[](rqst_ycsb lhs, rqst_ycsb rhs) { return
-        // lhs.key < rhs.key;});
+        query->requests.push_back(req);
     }
 
     // query->print();
