@@ -16,7 +16,8 @@ void DataFile::readAll(ReadRecordCallback callback) {
         throw std::runtime_error("Failed to read data file " + filePath + ": couldn't determine record count");
     
     for (size_t i = 1; i <= n; i++) {
-        std::string key, value;
+        uint64_t key;
+        std::string value;
         if (!(fileStream >> key >> value))
             throw std::runtime_error("Failed to read data file " + filePath + ": failed to read " + std::to_string(i) + "-th record");
         callback(std::move(key), std::move(value));

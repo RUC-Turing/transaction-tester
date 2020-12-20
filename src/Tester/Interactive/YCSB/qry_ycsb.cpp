@@ -100,7 +100,7 @@ QryYCSB *QueryGenYCSB::gen_requests_zipf() {
         uint64_t primary_key = row_id;
 
         req->key = primary_key;
-        req->value = mrand->next() % (1 << 8);
+        req->value = 'a' + mrand->next() % ('z' - 'a' + 1);
         // Make sure a single row is not accessed twice
         if (all_keys.find(req->key) == all_keys.end()) {
             all_keys.insert(req->key);

@@ -19,15 +19,14 @@ int main(int argc, char *argv[]) {
 
         // YCSB generates data
         for (size_t i = 0; i < TABLE_SIZE; i++) {
-            RecordKey key = "ycsb" + std::to_string(i);
+            RecordKey key = i;
             // YCSB table has 10 colums
             RecordData value;
-            value.fields[0] = key;
+            value.fields[0] = std::to_string(key);
             for (int fid = 1; fid < FIELD_COUNT; fid ++) {
-                // value.fields[i]; // ?
 				int field_size = FIELD_SIZE;
 				for (int i = 0; i < field_size; i++) 
-					value.fields[i] += (char)rand() % (1 << 8);
+					value.fields[fid] += 'A' + rand() % ('Z' - 'A' + 1);
 			}
             initialRecords[key] = value;
         }
@@ -43,13 +42,13 @@ int main(int argc, char *argv[]) {
 
         std::vector<std::future<bool>> futures; // A std::future is used for awaiting transaction execuation
         for (size_t i = 0; i < TEST_TXN_COUNT; i++) {
-            futures.push_back(TransactionRunner::runTransaction([&] (InteractiveTransaction &transaction) {
+            futures.push_back(TransactionRunner::runTransaction([&, i] (InteractiveTransaction &transaction) {
                 RecordData readResult;
                 for (size_t j = 0; j < YCSB_REQ_PER_QUERY; j++) {
                     if (!transaction.read(query[i]->requests[j]->key, readResult)) return;
                     if (query[i]->requests[j]->acctype == WR) {
                         readResult.fields[2] += query[i]->requests[j]->value;
-                        // if (!transaction.write("test", readResult + "1")) return;
+                        if (!transaction.write(query[i]->requests[j]->key, readResult)) return;
                     }
                 }
                 transaction.commit();

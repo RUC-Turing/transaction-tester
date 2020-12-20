@@ -2,15 +2,16 @@
 #define _MENCI_TRANSACTION_TESTER_FRAMEWORK_RECORD_TYPE
 
 #include <string>
+#include <cstdint>
 
-using RecordKey = std::string;
+using RecordKey = uint64_t;
 
 #define TABLE_SIZE 10000
 #define TEST_TXN_COUNT 10
 #define YCSB_REQ_PER_QUERY 10
 
 // Record has 10 fields, and each field's size is 100 bytes
-#define FIELD_SIZE 100
+#define FIELD_SIZE 10
 #define FIELD_COUNT 10
 
 struct RecordData {
