@@ -216,6 +216,31 @@ READ 1
 
 Interactive 是一种较强的测试，通过它，你可以使用可自定义的程序来交互式地调用事务接口，以模拟真实数据库应用场景下执行事务的操作。例如，写操作的内容可能与读操作的结果有关；所有事务不需要一次性发出，之后执行的事务可能与之前事务的结果有关。
 
+本框架自带了来自 WKDB 的 YCSB 交互式测试，直接运行即可执行测试。你可以通过参数来自定义 YCSB 测试集的数据规模，或指定线程数量：
+
+```
+Usage: ./bin/interactive-test [-s <number>] [-f <number>] [-l <number>] [-t <number>] [-r <number>] [-n <number>]
+       ./bin/interactive-test -?
+
+Interactive tester for transaction concurrency control algorithm implementation.
+
+Options:
+  -?, --help                                Show this help message and exit.
+  -s, --table-size=<number>                 The record count of generated being tested dataset. (Default: 10000)
+  -f, --field-count=<number>                The number of fields in each record (Default: 10)
+  -l, --field-length=<number>               The initial length of each field's value (Default: 10)
+  -t, --transactions=<number>               The number of transactions being tested. (Default: 10000)
+  -r, --requests-per-transaction=<number>   The number of request in each transaction being tested. (Default: 10)
+  -n, --threads=<number>                    The number of threads executing in parallel. (Default: 16)
+```
+
+例如：
+
+```bash
+# 在 build 目录下，执行 make 后
+./bin/interactive-test -n 16 # 线程数可省略
+```
+
 要自定义 Interactive 测试，你需要修改 `src/Tester/Interactive/main.cc` 程序：
 
 * 首先，调用 `TransactionRunner::preloadData`，将初始状态下的数据导入到框架中；
@@ -230,23 +255,3 @@ Interactive 是一种较强的测试，通过它，你可以使用可自定义�
     * 回调函数返回前，事务必须被显式提交或因出错而被自动回滚；
     * `TransactionRunner::runTransaction` 返回一个 `std::future<bool>`，你可以通过调用其 `wait` 方法来等待该事务执行结束，结束后可以调用 `get` 方法来获得事务是否执行成功（详见[参考资料](https://zh.cppreference.com/w/cpp/thread/future)）；
 * 等待所有事务运行结束后，调用 `TransactionRunner::validateAndPrintStatistics` 来对事务结果进行正确性检验和性能评估。
-
-与 Batch 测试一样，在 Interactive 测试中，你也可以指定并发线程数量：
-
-```
-Usage: ./bin/interactive-test [-n <number>]
-       ./bin/interactive-test -?
-
-Interactive tester for transaction concurrency control algorithm implementation.
-
-Options:
-  -?, --help                            Show this help message and exit.
-  -n, --threads=<number>                The number of threads executing in parallel. (Default: 16)
-```
-
-例如：
-
-```bash
-# 在 build 目录下，执行 make 后
-./bin/interactive-test -n 16 # 线程数可省略
-```
