@@ -7,10 +7,14 @@
 #include "WrappedTransaction.h"
 
 class InteractiveTransaction {
+public:
+    enum Status {
+            RUNNING, ROLLED_BACK, COMMITED
+    };
+
+private:
     WrappedTransaction transaction;
-    enum {
-        RUNNING, ROLLED_BACK, COMMITED
-    } status;
+    Status status;
     std::shared_ptr<std::vector<Operation>> operations;
 
     InteractiveTransaction(size_t id, std::shared_ptr<std::vector<Operation>> operations);
@@ -21,6 +25,8 @@ class InteractiveTransaction {
 
 public:
     InteractiveTransaction(InteractiveTransaction &&) = default;
+
+    auto getStatus() { return status; }
 
     bool read(const RecordKey &key, RecordData &result);
     bool write(const RecordKey &key, const RecordData &newData);

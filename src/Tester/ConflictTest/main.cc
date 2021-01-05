@@ -28,6 +28,8 @@ void runConflictGroup(const ConflictGroup &group) {
 
             if (!transaction) transaction = std::make_unique<InteractiveTransaction>(TransactionRunner::createTransaction());
 
+            if (transaction->getStatus() == InteractiveTransaction::ROLLED_BACK) continue;
+
             if (operation.type == ConflictGroup::Operation::READ) {
                 RecordData data;
                 transaction->read(operation.key, data);
