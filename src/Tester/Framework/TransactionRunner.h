@@ -17,14 +17,21 @@ class TransactionRunner {
     static std::vector<std::shared_ptr<std::vector<Operation>>> operationsByTransaction;
     static std::mutex lockForOperationsByTransaction;
 
+    // InteractiveTransaction will add its id to this list when committing
     static std::vector<transaction_id_t> committedTransactions;
     static std::mutex lockForCommittedTransactions;
 
     // Time on first transaction created
     static std::chrono::high_resolution_clock::time_point startTime;
 
+    static transaction_id_t allocateTransactionId();
+
+    friend class InteractiveTransaction;
+
 public:
     static void preloadData(const std::unordered_map<RecordKey, RecordData> &initialRecords);
+
+    static InteractiveTransaction createTransaction();
 
     // Only ONE of two functions below could be called
     static std::future<bool> runTransaction(std::function<void (InteractiveTransaction &transaction)> transactionUser);

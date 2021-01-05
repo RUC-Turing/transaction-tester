@@ -2,6 +2,9 @@
 
 #include <string>
 #include <stdexcept>
+#include <mutex>
+
+#include "TransactionRunner.h"
 
 InteractiveTransaction::InteractiveTransaction(size_t id, std::shared_ptr<std::vector<Operation>> operations)
 : transaction(id), status(RUNNING), operations(operations) {}
@@ -44,6 +47,11 @@ bool InteractiveTransaction::commit() {
     
     if (transaction.commit()) {
         status = COMMITED;
+
+        // Append to commited transaction list
+        std::lock_guard lock(TransactionRunner::lockForCommittedTransactions);
+        TransactionRunner::committedTransactions.push_back(transaction.id);
+
         return true;
     } else {
         rollback();

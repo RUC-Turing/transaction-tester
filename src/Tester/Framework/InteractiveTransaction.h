@@ -20,6 +20,8 @@ class InteractiveTransaction {
     friend class TransactionRunner;
 
 public:
+    InteractiveTransaction(InteractiveTransaction &&) = default;
+
     bool read(const RecordKey &key, RecordData &result);
     bool write(const RecordKey &key, const RecordData &newData);
     bool commit();

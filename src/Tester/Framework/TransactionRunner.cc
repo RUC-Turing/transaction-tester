@@ -22,19 +22,24 @@ void TransactionRunner::preloadData(const std::unordered_map<RecordKey, RecordDa
     WrappedTransaction::preloadData(initialRecords);
 }
 
-std::future<bool> TransactionRunner::runTransaction(std::function<void (InteractiveTransaction &transaction)> transactionUser) {
-    transaction_id_t id;
-    std::shared_ptr<std::vector<Operation>> operations;
-    {
-        std::lock_guard lock(lockForOperationsByTransaction);
-        if (operationsByTransaction.empty()) {
-            // Record the start time
-            startTime = std::chrono::high_resolution_clock::now();
-        }
-        operationsByTransaction.push_back(std::make_shared<std::vector<Operation>>());
-        id = operationsByTransaction.size();
-        operations = operationsByTransaction[id - 1];
+transaction_id_t TransactionRunner::allocateTransactionId() {
+    std::lock_guard lock(lockForOperationsByTransaction);
+    if (operationsByTransaction.empty()) {
+        // Record the start time
+        startTime = std::chrono::high_resolution_clock::now();
     }
+    operationsByTransaction.push_back(std::make_shared<std::vector<Operation>>());
+    return operationsByTransaction.size();
+}
+
+InteractiveTransaction TransactionRunner::createTransaction() {
+    transaction_id_t id = allocateTransactionId();
+    return InteractiveTransaction(id, operationsByTransaction[id - 1]);
+}
+
+std::future<bool> TransactionRunner::runTransaction(std::function<void (InteractiveTransaction &transaction)> transactionUser) {
+    transaction_id_t id = allocateTransactionId();
+    std::shared_ptr<std::vector<Operation>> operations = operationsByTransaction[id - 1];
 
     return threadPool->run([operations, id, transactionUser{std::move(transactionUser)}] {
         InteractiveTransaction transaction(id, operations);
@@ -44,12 +49,7 @@ std::future<bool> TransactionRunner::runTransaction(std::function<void (Interact
         if (transaction.status == InteractiveTransaction::RUNNING)
             throw std::logic_error("Transaction " + std::to_string(id) + "'s user function returned without committing");
 
-        if (transaction.status == InteractiveTransaction::COMMITED) {
-            std::lock_guard lock(lockForCommittedTransactions);
-            committedTransactions.push_back(id);
-            return true;
-        } else // rolled back
-            return false;
+        return transaction.status == InteractiveTransaction::COMMITED;
     });
 }
 
@@ -102,7 +102,7 @@ void TransactionRunner::validateAndPrintStatistics() {
               << "/"
               << TerminalColor::Bold << operationsByTransaction.size() << TerminalColor::Reset
               << " commited in "
-              << TerminalColor::Bold << timeElapsedInSeconds << TerminalColor::Reset
+              << TerminalColor::Bold << std::fixed << timeElapsedInSeconds << TerminalColor::Reset
               << " seconds, "
               << TerminalColor::ForegroundBlue << TerminalColor::Bold << committedTransactionSet.size() / timeElapsedInSeconds << TerminalColor::Reset
               << " TPS."

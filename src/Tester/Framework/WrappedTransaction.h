@@ -19,7 +19,7 @@ public:
     const transaction_id_t id;
 
     WrappedTransaction(const WrappedTransaction &) = delete;
-    WrappedTransaction(WrappedTransaction &&) = default;
+    WrappedTransaction(WrappedTransaction &&);
     ~WrappedTransaction();
 
 private:

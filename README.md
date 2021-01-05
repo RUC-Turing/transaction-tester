@@ -19,6 +19,7 @@ ls -lah bin # 查看构建出的可执行文件
 
 * `batch-test`：Batch 测试
 * `interactive-test`：Interactive 测试
+* `conflict-test`：Conflict 测试
 
 每次对代码进行更改后，你需要再次执行 `make`。  
 如果你新增/删除了源文件，或编辑了 `cmake` 配置（通常你不需要这么做），则需要重新执行 `cmake`。
@@ -128,7 +129,7 @@ std::vector<transaction_id_t> getSerializationOrder();
 
 # 测试
 
-框架附带了两种测试 —— Batch 和 Interactive。每种测试都会在运行后输出结果，如下结果表示算法正确，并给出了已提交事务数、总事务数和平均 TPS（每秒事务处理量）：
+框架附带了三种测试 —— Batch、Interactive 和 Conflict。每种测试都会在运行后输出结果，如下结果表示算法正确，并给出了已提交事务数、总事务数和平均 TPS（每秒事务处理量）：
 
 ```
 Success: 6/6 commited in 0.000122241 seconds, 49083.4 TPS.
@@ -255,3 +256,30 @@ Options:
     * 回调函数返回前，事务必须被显式提交或因出错而被自动回滚；
     * `TransactionRunner::runTransaction` 返回一个 `std::future<bool>`，你可以通过调用其 `wait` 方法来等待该事务执行结束，结束后可以调用 `get` 方法来获得事务是否执行成功（详见[参考资料](https://zh.cppreference.com/w/cpp/thread/future)）；
 * 等待所有事务运行结束后，调用 `TransactionRunner::validateAndPrintStatistics` 来对事务结果进行正确性检验和性能评估。
+
+## Conflict
+
+Conflict 是一种特殊的测试，它可以模拟执行指定的操作序列，以构造出冲突的事务操作，用于正确性测试。
+
+要运行 Conflict 测试，你需要一个冲突事务描述文件，它的格式可以参考 [`conflict.txt`](conflict.txt)。
+
+Conflict 测试由 `conflict-test` 程序提供，用法为：
+
+```
+Usage: ./bin/conflict-test -t <path>
+       ./bin/conflict-test -?
+
+Conflict tester for transaction concurrency control algorithm implementation.
+
+Options:
+  -?, --help                                Show this help message and exit.
+  -t, --conflict-transactions=<path>        The file of conflict transactions to execute in the database.
+```
+
+`-t` 参数表示事务文件，如，使用以下命令运行附带的测试文件（来自 [WKDB](https://github.com/yqekzb123/homework-wkdb/blob/40e1da19798db5b1d32c2dffe55c2f0ef7830cff/input.txt)）：
+
+```bash
+./bin/conflict-test -t ../conflict.txt
+```
+
+**注意**：在 Conflict 测试中，所有操作均在一个线程中执行。它只能测出事务异常的问题，并不能测出多线程的条件竞争。

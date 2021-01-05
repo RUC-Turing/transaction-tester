@@ -3,7 +3,6 @@
 
 #include <fstream>
 #include <vector>
-#include <functional>
 
 #include "Framework/Operation.h"
 

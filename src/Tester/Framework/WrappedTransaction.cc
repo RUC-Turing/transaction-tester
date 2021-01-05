@@ -13,6 +13,8 @@ std::vector<transaction_id_t> WrappedTransaction::getSerializationOrder() {
 WrappedTransaction::WrappedTransaction(transaction_id_t id)
 : impl(new Transaction(id)), id(id) {}
 
+WrappedTransaction::WrappedTransaction(WrappedTransaction &&) = default;
+
 WrappedTransaction::~WrappedTransaction() = default;
 
 bool WrappedTransaction::read(const RecordKey &key, RecordData &result) {
