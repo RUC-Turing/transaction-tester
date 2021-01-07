@@ -53,7 +53,7 @@ void preloadData(const std::unordered_map<RecordKey, RecordData> &initialRecords
 
 你可以在 `Transaction` 对象中定义一些你的并发控制算法所需要维护的，或对于调试有帮助的成员变量。例子中仅有一个 `timestamp`，表示事务开始执行时的时间戳 —— 如果你不需要这个变量，你可以将它删除。
 
-你需要实现以下四个成员函数：
+你需要实现以下五个成员函数：
 
 ### `Transaction::start`
 
