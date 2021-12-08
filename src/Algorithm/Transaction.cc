@@ -43,6 +43,7 @@ bool Transaction::write(const RecordKey &key, const RecordData &newData) {
 bool Transaction::commit() {
     // Append the commited transaction to serialization order list
     {
+        // Use a lock to prevent data race in writing the serializationOrderLock vector
         std::lock_guard lock(serializationOrderLock);
         serializationOrder.push_back(this->id);
     }
