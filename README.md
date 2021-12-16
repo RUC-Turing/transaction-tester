@@ -1,4 +1,4 @@
-# Transaction Tester
+# RUC Transaction Tester
 
 一个测试框架，用于事务并发控制算法的正确性测试与性能评估。
 
